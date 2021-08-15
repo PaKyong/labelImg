@@ -1,25 +1,6 @@
+=======
 History
 =======
-
-1.8.5 (2021-04-11)
-------------------
-
-* Merged a couple of PRs
-* Fixed issues
-* Support CreateML format
-
-
-1.8.4 (2020-11-04)
-------------------
-
-* Merged a couple of PRs
-* Fixed issues
-
-1.8.2 (2018-12-02)
-------------------
-
-* Fix pip depolyment issue
-
 
 1.8.1 (2018-12-02)
 ------------------
@@ -57,7 +38,7 @@ History
 1.5.2 (2017-10-24)
 ------------------
 
-* Assign different colors to different lablels
+* Assig different colors to different lablels
 
 1.5.1 (2017-9-27)
 ------------------

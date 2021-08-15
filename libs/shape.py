@@ -15,9 +15,11 @@ import sys
 DEFAULT_LINE_COLOR = QColor(0, 255, 0, 128)
 DEFAULT_FILL_COLOR = QColor(255, 0, 0, 128)
 DEFAULT_SELECT_LINE_COLOR = QColor(255, 255, 255)
-DEFAULT_SELECT_FILL_COLOR = QColor(0, 128, 255, 155)
+DEFAULT_SELECT_FILL_COLOR = QColor(0, 128, 255, 0)
+#DEFAULT_SELECT_FILL_COLOR = QColor(0, 128, 255, 155)
 DEFAULT_VERTEX_FILL_COLOR = QColor(0, 255, 0, 255)
 DEFAULT_HVERTEX_FILL_COLOR = QColor(255, 0, 0)
+MIN_Y_LABEL = 10
 
 
 class Shape(object):
@@ -31,24 +33,25 @@ class Shape(object):
     fill_color = DEFAULT_FILL_COLOR
     select_line_color = DEFAULT_SELECT_LINE_COLOR
     select_fill_color = DEFAULT_SELECT_FILL_COLOR
+    select_multifill_color = QColor(0, 255, 128, 155)
     vertex_fill_color = DEFAULT_VERTEX_FILL_COLOR
-    h_vertex_fill_color = DEFAULT_HVERTEX_FILL_COLOR
+    hvertex_fill_color = DEFAULT_HVERTEX_FILL_COLOR
     point_type = P_ROUND
     point_size = 8
     scale = 1.0
-    label_font_size = 8
 
-    def __init__(self, label=None, line_color=None, difficult=False, paint_label=False):
+    def __init__(self, label=None, line_color=None, difficult=False, paintLabel=False):
         self.label = label
         self.points = []
         self.fill = False
+        self.multifill = False
         self.selected = False
         self.difficult = difficult
-        self.paint_label = paint_label
+        self.paintLabel = paintLabel
 
-        self._highlight_index = None
-        self._highlight_mode = self.NEAR_VERTEX
-        self._highlight_settings = {
+        self._highlightIndex = None
+        self._highlightMode = self.NEAR_VERTEX
+        self._highlightSettings = {
             self.NEAR_VERTEX: (4, self.P_ROUND),
             self.MOVE_VERTEX: (1.5, self.P_SQUARE),
         }
@@ -64,87 +67,103 @@ class Shape(object):
     def close(self):
         self._closed = True
 
-    def reach_max_points(self):
+    def reachMaxPoints(self):
         if len(self.points) >= 4:
             return True
         return False
 
-    def add_point(self, point):
-        if not self.reach_max_points():
+    def addPoint(self, point):
+        if not self.reachMaxPoints():
             self.points.append(point)
 
-    def pop_point(self):
+    def popPoint(self):
         if self.points:
             return self.points.pop()
         return None
 
-    def is_closed(self):
+    def isClosed(self):
         return self._closed
 
-    def set_open(self):
+    def setOpen(self):
         self._closed = False
 
     def paint(self, painter):
         if self.points:
-            color = self.select_line_color if self.selected else self.line_color
+            color =  self.line_color
             pen = QPen(color)
             # Try using integer sizes for smoother drawing(?)
             pen.setWidth(max(1, int(round(2.0 / self.scale))))
             painter.setPen(pen)
 
             line_path = QPainterPath()
-            vertex_path = QPainterPath()
+            vrtx_path = QPainterPath()
+            selectedshape_path = QPainterPath()
 
             line_path.moveTo(self.points[0])
+            selectedshape_path.moveTo(self.points[0])
             # Uncommenting the following line will draw 2 paths
             # for the 1st vertex, and make it non-filled, which
             # may be desirable.
-            # self.drawVertex(vertex_path, 0)
+            #self.drawVertex(vrtx_path, 0)
 
             for i, p in enumerate(self.points):
                 line_path.lineTo(p)
-                self.draw_vertex(vertex_path, i)
-            if self.is_closed():
+                self.drawVertex(vrtx_path, i)
+            if self.isClosed():
                 line_path.lineTo(self.points[0])
 
             painter.drawPath(line_path)
-            painter.drawPath(vertex_path)
-            painter.fillPath(vertex_path, self.vertex_fill_color)
+            painter.drawPath(vrtx_path)
+            painter.fillPath(vrtx_path, self.vertex_fill_color)
 
             # Draw text at the top-left
-            if self.paint_label:
+            if self.paintLabel:
                 min_x = sys.maxsize
                 min_y = sys.maxsize
-                min_y_label = int(1.25 * self.label_font_size)
                 for point in self.points:
                     min_x = min(min_x, point.x())
                     min_y = min(min_y, point.y())
                 if min_x != sys.maxsize and min_y != sys.maxsize:
                     font = QFont()
-                    font.setPointSize(self.label_font_size)
+                    font.setPointSize(8)
                     font.setBold(True)
                     painter.setFont(font)
-                    if self.label is None:
+                    if(self.label == None):
                         self.label = ""
-                    if min_y < min_y_label:
-                        min_y += min_y_label
+                    if(min_y < MIN_Y_LABEL):
+                        min_y += MIN_Y_LABEL
                     painter.drawText(min_x, min_y, self.label)
 
             if self.fill:
-                color = self.select_fill_color if self.selected else self.fill_color
+                hshape_path = QPainterPath()
+                hshape_path.moveTo(self.points[1])
+                hshape_path.lineTo(self.points[3])
+                painter.drawPath(hshape_path)
+                # color = self.select_fill_color if self.selected else self.fill_color
+                #painter.fillPath(line_path, color)
+
+            if self.selected:
+                selectedshape_path.lineTo(self.points[2])
+                selectedshape_path.lineTo(self.points[3])
+                selectedshape_path.lineTo(self.points[1])
+                painter.drawPath(selectedshape_path)
+
+            if self.selected is False and self.multifill is True:
+                color = self.select_multifill_color
                 painter.fillPath(line_path, color)
 
-    def draw_vertex(self, path, i):
+    def drawVertex(self, path, i):
         d = self.point_size / self.scale
         shape = self.point_type
         point = self.points[i]
-        if i == self._highlight_index:
-            size, shape = self._highlight_settings[self._highlight_mode]
+        if i == self._highlightIndex:
+            size, shape = self._highlightSettings[self._highlightMode]
             d *= size
-        if self._highlight_index is not None:
-            self.vertex_fill_color = self.h_vertex_fill_color
+        if self._highlightIndex is not None:
+            self.vertex_fill_color = self.hvertex_fill_color
         else:
-            self.vertex_fill_color = Shape.vertex_fill_color
+            self.vertex_fill_color = self.line_color
+            #self.vertex_fill_color = Shape.vertex_fill_color
         if shape == self.P_SQUARE:
             path.addRect(point.x() - d / 2, point.y() - d / 2, d, d)
         elif shape == self.P_ROUND:
@@ -152,36 +171,36 @@ class Shape(object):
         else:
             assert False, "unsupported vertex shape"
 
-    def nearest_vertex(self, point, epsilon):
+    def nearestVertex(self, point, epsilon):
         for i, p in enumerate(self.points):
             if distance(p - point) <= epsilon:
                 return i
         return None
 
-    def contains_point(self, point):
-        return self.make_path().contains(point)
+    def containsPoint(self, point):
+        return self.makePath().contains(point)
 
-    def make_path(self):
+    def makePath(self):
         path = QPainterPath(self.points[0])
         for p in self.points[1:]:
             path.lineTo(p)
         return path
 
-    def bounding_rect(self):
-        return self.make_path().boundingRect()
+    def boundingRect(self):
+        return self.makePath().boundingRect()
 
-    def move_by(self, offset):
+    def moveBy(self, offset):
         self.points = [p + offset for p in self.points]
 
-    def move_vertex_by(self, i, offset):
+    def moveVertexBy(self, i, offset):
         self.points[i] = self.points[i] + offset
 
-    def highlight_vertex(self, i, action):
-        self._highlight_index = i
-        self._highlight_mode = action
+    def highlightVertex(self, i, action):
+        self._highlightIndex = i
+        self._highlightMode = action
 
-    def highlight_clear(self):
-        self._highlight_index = None
+    def highlightClear(self):
+        self._highlightIndex = None
 
     def copy(self):
         shape = Shape("%s" % self.label)
