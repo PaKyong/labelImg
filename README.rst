@@ -1,6 +1,11 @@
 LabelImg
 ========
 
+This program is customized for object detection annotation.
+Some shortcut keys are changed.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. image:: https://img.shields.io/pypi/v/labelimg.svg
         :target: https://pypi.python.org/pypi/labelimg
 
@@ -173,80 +178,6 @@ Use Docker
 You can pull the image which has all of the installed and required dependencies. `Watch a demo video <https://youtu.be/nw1GexJzbCI>`__
 
 
-Usage
------
-
-Steps (PascalVOC)
-~~~~~
-
-1. Build and launch using the instructions above.
-2. Click 'Change default saved annotation folder' in Menu/File
-3. Click 'Open Dir'
-4. Click 'Create RectBox'
-5. Click and release left mouse to select a region to annotate the rect
-   box
-6. You can use right mouse to drag the rect box to copy or move it
-
-The annotation will be saved to the folder you specify.
-
-You can refer to the below hotkeys to speed up your workflow.
-
-Steps (YOLO)
-~~~~~
-
-1. In ``data/predefined_classes.txt`` define the list of classes that will be used for your training.
-
-2. Build and launch using the instructions above.
-
-3. Right below "Save" button in toolbar, click "PascalVOC" button to switch to YOLO format.
-
-4. You may use Open/OpenDIR to process single or multiple images. When finished with single image, click save.
-
-A txt file of yolo format will be saved in the same folder as your image with same name. A file named "classes.txt" is saved to that folder too. "classes.txt" defines the list of class names that your yolo label refers to.
-
-Note:
-
-- Your label list shall not change in the middle of processing a list of images. When you save a image, classes.txt will also get updated, while previous annotations will not be updated.
-
-- You shouldn't use "default class" function when saving to YOLO format, it will not be referred.
-
-- When saving as YOLO format, "difficult" flag is discarded.
-
-Create pre-defined classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You can edit the
-`data/predefined\_classes.txt <https://github.com/tzutalin/labelImg/blob/master/data/predefined_classes.txt>`__
-to load pre-defined classes
-
-Hotkeys
-~~~~~~~
-
-+------------+--------------------------------------------+
-| Ctrl + u   | Load all of the images from a directory    |
-+------------+--------------------------------------------+
-| Ctrl + r   | Change the default annotation target dir   |
-+------------+--------------------------------------------+
-| Ctrl + s   | Save                                       |
-+------------+--------------------------------------------+
-| Ctrl + d   | Copy the current label and rect box        |
-+------------+--------------------------------------------+
-| Space      | Flag the current image as verified         |
-+------------+--------------------------------------------+
-| w          | Create a rect box                          |
-+------------+--------------------------------------------+
-| d          | Next image                                 |
-+------------+--------------------------------------------+
-| a          | Previous image                             |
-+------------+--------------------------------------------+
-| del        | Delete the selected rect box               |
-+------------+--------------------------------------------+
-| Ctrl++     | Zoom in                                    |
-+------------+--------------------------------------------+
-| Ctrl--     | Zoom out                                   |
-+------------+--------------------------------------------+
-| ↑→↓←       | Keyboard arrows to move selected rect box  |
-+------------+--------------------------------------------+
 
 **Verify Image:**
 
